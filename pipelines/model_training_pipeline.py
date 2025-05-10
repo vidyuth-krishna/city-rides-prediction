@@ -39,6 +39,7 @@ features_df, targets = transform_ts_data_info_features_and_target(
 )
 features_df["target"] = pd.to_numeric(targets, errors="coerce")
 features_df["start_hour"] = pd.to_datetime(features_df["start_hour"])
+features_df["start_hour"] = features_df["start_hour"].dt.tz_localize("UTC")  # ⬅️ Fix timezone mismatch
 
 # === 4. Split train/test ===
 cutoff = pd.Timestamp(datetime.now(), tz="UTC") - timedelta(days=28)
