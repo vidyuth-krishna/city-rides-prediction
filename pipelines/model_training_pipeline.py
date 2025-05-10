@@ -29,7 +29,8 @@ fv = fs.get_feature_view(name=FEATURE_VIEW_NAME, version=FEATURE_VIEW_VERSION)
 
 # === 2. Fetch 180 days of data ===
 ts_data, _ = fv.training_data(start_time=datetime.now() - timedelta(days=180))
-ts_data = ts_data.sort_values(["pickup_location_id", "pickup_hour"]).reset_index(drop=True)
+ts_data = ts_data.sort_values(["start_station_id", "start_hour"]).reset_index(drop=True)
+
 
 # === 3. Transform to tabular features/targets ===
 features_df, targets = transform_ts_data_info_features_and_target(
