@@ -183,5 +183,5 @@ pyrightconfig.json
 
 # Data, model artifacts (don't version control heavy/generated files)
 *.parquet
-
+data/
 models/

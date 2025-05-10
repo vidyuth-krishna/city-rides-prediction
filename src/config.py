@@ -14,7 +14,8 @@ FEATURE_VIEW_NAME = "citibike_hourly_features"
 FEATURE_VIEW_VERSION = 1
 
 
-# MODEL_NAME = "taxi_demand_predictor_next_hour"
-# MODEL_VERSION = 1
+MODELS_DIR = Path("models")
+MODEL_NAME = "citibike_hourly_predictor"
+MODEL_VERSION = 1
 
-# FEATURE_GROUP_MODEL_PREDICTION = "taxi_hourly_model_prediction"
+#FEATURE_GROUP_MODEL_PREDICTION = "taxi_hourly_model_prediction"
