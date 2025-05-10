@@ -37,15 +37,15 @@ features_df, targets = transform_ts_data_info_features_and_target(
     window_size=24 * 28,
     step_size=24
 )
+features_df = features_df.rename(columns={"pickup_hour": "start_hour"})  # 🛠 standardize datetime column
 features_df["target"] = pd.to_numeric(targets, errors="coerce")
 features_df["start_hour"] = pd.to_datetime(features_df["start_hour"])
-features_df["start_hour"] = features_df["start_hour"].dt.tz_localize("UTC")  # ⬅️ Fix timezone mismatch
 
 # === 4. Split train/test ===
 cutoff = features_df["start_hour"].max() - timedelta(days=28)
 print(f"📆 Using cutoff: {cutoff}")
 
-if cutoff < features_df["start_hour"].min():
+if pd.isna(cutoff) or cutoff < features_df["start_hour"].min():
     raise ValueError("❌ Not enough historical data to split 28 days before end.")
 
 X_train, y_train, X_test, y_test = split_time_series_data(
