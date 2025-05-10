@@ -80,8 +80,8 @@ def split_time_series_data(
             - X_test (pd.DataFrame): Testing features.
             - y_test (pd.Series): Testing target values.
     """
-    train_data = df[df["pickup_hour"] < cutoff_date].reset_index(drop=True)
-    test_data = df[df["pickup_hour"] >= cutoff_date].reset_index(drop=True)
+    train_data = df[df["start_hour"] < cutoff_date].reset_index(drop=True)
+    test_data = df[df["start_hour"] >= cutoff_date].reset_index(drop=True)
 
     X_train = train_data.drop(columns=[target_column])
     y_train = train_data[target_column]
@@ -89,6 +89,7 @@ def split_time_series_data(
     y_test = test_data[target_column]
 
     return X_train, y_train, X_test, y_test
+
 
 def transform_ts_data_info_features_and_target(
     df,
