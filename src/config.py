@@ -18,4 +18,4 @@ MODELS_DIR = Path("models")
 MODEL_NAME = "citibike_hourly_predictor"
 MODEL_VERSION = 1
 
-#FEATURE_GROUP_MODEL_PREDICTION = "taxi_hourly_model_prediction"
+FEATURE_GROUP_MODEL_PREDICTION = "citibike_hourly_predictions"

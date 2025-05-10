@@ -141,3 +141,40 @@ def transform_ts_data_info_features_and_target(
     targets = final_df["target"]
 
     return features, targets
+
+def transform_ts_data_info_features(
+    df,
+    feature_col="rides",
+    location_col="start_station_id",
+    time_col="start_hour",
+    window_size=24 * 28,
+):
+    """
+    Transforms recent time series data into a single row of lag features for each location.
+    This is used for inference (next-hour prediction).
+
+    Returns:
+        pd.DataFrame: Features including lag columns + pickup_hour + pickup_location_id.
+    """
+    location_ids = df[location_col].unique()
+    transformed_data = []
+
+    for location_id in location_ids:
+        location_data = df[df[location_col] == location_id].sort_values(time_col).reset_index(drop=True)
+        values = location_data[feature_col].values
+        times = location_data[time_col].values
+
+        if len(values) < window_size:
+            print(f"⚠️ Skipping location {location_id} (not enough data)")
+            continue
+
+        features = values[-window_size:]
+        target_time = pd.to_datetime(times[-1]) + pd.Timedelta(hours=1)
+
+        row = np.append(features, [location_id, target_time])
+        transformed_data.append(row)
+
+    feature_columns = [f"{feature_col}_t-{window_size - i}" for i in range(window_size)]
+    all_columns = feature_columns + ["pickup_location_id", "pickup_hour"]
+
+    return pd.DataFrame(transformed_data, columns=all_columns)
