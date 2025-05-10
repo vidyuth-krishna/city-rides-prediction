@@ -42,10 +42,18 @@ features_df["start_hour"] = pd.to_datetime(features_df["start_hour"])
 features_df["start_hour"] = features_df["start_hour"].dt.tz_localize("UTC")  # ⬅️ Fix timezone mismatch
 
 # === 4. Split train/test ===
-cutoff = pd.Timestamp(datetime.now(), tz="UTC") - timedelta(days=28)
+cutoff = features_df["start_hour"].max() - timedelta(days=28)
+print(f"📆 Using cutoff: {cutoff}")
+
+if cutoff < features_df["start_hour"].min():
+    raise ValueError("❌ Not enough historical data to split 28 days before end.")
+
 X_train, y_train, X_test, y_test = split_time_series_data(
     features_df, cutoff_date=cutoff, target_column="target"
 )
+
+if X_train.empty:
+    raise ValueError("❌ X_train is empty — likely not enough training rows before cutoff.")
 
 # === 5. Clean feature dtypes ===
 lag_cols = [col for col in X_train.columns if col.startswith("rides_t-")]
