@@ -31,15 +31,14 @@ fv = fs.get_feature_view(name=FEATURE_VIEW_NAME, version=FEATURE_VIEW_VERSION)
 ts_data, _ = fv.training_data(start_time=datetime.now() - timedelta(days=180))
 ts_data = ts_data.sort_values(["start_station_id", "start_hour"]).reset_index(drop=True)
 
-
 # === 3. Transform to tabular features/targets ===
 features_df, targets = transform_ts_data_info_features_and_target(
     ts_data,
-    window_size=24*28,
+    window_size=24 * 28,
     step_size=24
 )
 features_df["target"] = pd.to_numeric(targets, errors="coerce")
-features_df["pickup_hour"] = pd.to_datetime(features_df["pickup_hour"])
+features_df["start_hour"] = pd.to_datetime(features_df["start_hour"])
 
 # === 4. Split train/test ===
 cutoff = pd.Timestamp(datetime.now(), tz="UTC") - timedelta(days=28)
@@ -54,8 +53,8 @@ y_train = pd.to_numeric(y_train, errors="coerce")
 
 # === 6. Train model ===
 model = LGBMRegressor(random_state=42)
-model.fit(X_train.drop(columns=["pickup_hour", "pickup_location_id"]), y_train)
-train_preds = np.round(model.predict(X_train.drop(columns=["pickup_hour", "pickup_location_id"]))).astype(int)
+model.fit(X_train.drop(columns=["start_hour", "start_station_id"]), y_train)
+train_preds = np.round(model.predict(X_train.drop(columns=["start_hour", "start_station_id"]))).astype(int)
 train_mae = np.round(np.mean(np.abs(train_preds - y_train)), 4)
 
 print(f"✅ Trained LGBM — MAE: {train_mae}")
@@ -69,7 +68,7 @@ joblib.dump(model, model_path)
 mlflow = set_mlflow_tracking()
 log_model_to_mlflow(
     model=model,
-    input_data=X_train.drop(columns=["pickup_hour", "pickup_location_id"]),
+    input_data=X_train.drop(columns=["start_hour", "start_station_id"]),
     experiment_name="LGBMModel28Day",
     metric_name="mae",
     score=train_mae,
