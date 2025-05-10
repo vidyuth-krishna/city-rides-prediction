@@ -93,8 +93,8 @@ def split_time_series_data(
 def transform_ts_data_info_features_and_target(
     df,
     feature_col="rides",
-    window_size=24*28,  # 28 days
-    step_size=24        # predict every next day
+    window_size=24 * 28,  # 28 days
+    step_size=24          # predict every next day
 ):
     """
     Transforms time series data for all unique location IDs into a supervised learning format.
@@ -102,7 +102,7 @@ def transform_ts_data_info_features_and_target(
     Target = next hour ride count.
 
     Parameters:
-        df (pd.DataFrame): Must include 'pickup_hour', 'pickup_location_id', and the feature_col.
+        df (pd.DataFrame): Must include 'start_hour', 'start_station_id', and the feature_col.
         feature_col (str): Column name for the target time series (default = "rides")
         window_size (int): Number of lag hours to use as features
         step_size (int): Sliding window step size
@@ -111,20 +111,20 @@ def transform_ts_data_info_features_and_target(
         features (pd.DataFrame), targets (pd.Series)
     """
 
-    location_ids = df["pickup_location_id"].unique()
+    location_ids = df["start_station_id"].unique()
     transformed_data = []
 
     for location_id in location_ids:
-        location_data = df[df["pickup_location_id"] == location_id].reset_index(drop=True)
+        location_data = df[df["start_station_id"] == location_id].reset_index(drop=True)
 
         values = location_data[feature_col].values
-        times = location_data["pickup_hour"].values
+        times = location_data["start_hour"].values
 
         if len(values) <= window_size:
             continue
 
         for i in range(0, len(values) - window_size, step_size):
-            features = values[i : i + window_size]
+            features = values[i: i + window_size]
             target = values[i + window_size]
             target_time = times[i + window_size]
 
@@ -132,11 +132,11 @@ def transform_ts_data_info_features_and_target(
             transformed_data.append(row)
 
     feature_columns = [f"{feature_col}_t-{window_size - i}" for i in range(window_size)]
-    all_columns = feature_columns + ["target", "pickup_location_id", "pickup_hour"]
+    all_columns = feature_columns + ["target", "start_station_id", "start_hour"]
 
     final_df = pd.DataFrame(transformed_data, columns=all_columns)
 
-    features = final_df[feature_columns + ["pickup_hour", "pickup_location_id"]]
+    features = final_df[feature_columns + ["start_hour", "start_station_id"]]
     targets = final_df["target"]
 
     return features, targets
